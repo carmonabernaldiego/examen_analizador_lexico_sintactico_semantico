@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COMPILADOR</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.60.0/codemirror.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.60.0/codemirror.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.60.0/mode/javascript/javascript.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #editor-container {
+        width: 100%;
+        height: 450px;
+        border: 1px solid #ccc;
+      }
+
+      /* Personalizar el scrollbar en navegadores webkit (Chrome, Safari) */
+      ::-webkit-scrollbar {
+        width: 7px;
+        /* Ancho del scrollbar */
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: #888;
+        /* Color del thumb (barra) del scrollbar */
+        border-radius: 5px;
+        /* Radio de esquinas del thumb */
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+        /* Color del thumb en hover */
+      }
+
+      /* Personalizar el scrollbar en Firefox */
+      /* Nota: Firefox no admite la personalización completa del scrollbar mediante CSS */
+    </style>
+  </head>
+  <body class="bg-light d-flex flex-column min-vh-100">
+    <h1 class="card-title">Analizador Léxico, Sintáctico y Semántico.</h5>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="card-title">Código Fuente</h5>
+            </div>
+            <div class="card-body">
+              <form method="post">
+                <textarea class="form-control" name="code" rows="10">
+{{ request.form['code'] if request.form['code'] else '' }}</textarea
+                >
+                <button type="submit" class="btn btn-primary mt-3">
+                  Ejecutar
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="accordion" id="analysisAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingLexical">
+                <button
+                  class="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseLexical"
+                  aria-expanded="true"
+                  aria-controls="collapseLexical"
+                >
+                  Análisis Léxico
+                </button>
+              </h2>
+              <div
+                id="collapseLexical"
+                class="accordion-collapse collapse show"
+                aria-labelledby="headingLexical"
+                data-bs-parent="#analysisAccordion"
+              >
+                <div
+                  class="accordion-body"
+                  style="max-height: 320px; overflow-y: auto"
+                >
+                  <table class="table table-sm table-bordered">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>TIPO</th>
+                        <th>VALOR</th>
+                        <th>LINEA</th>
+                        <th>POSICION</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for token in tokens %}
+                      <tr>
+                        <td>{{ token[0] }}</td>
+                        <td>{{ token[1] }}</td>
+                        <td>{{ token[2] }}</td>
+                        <td>{{ token[3] }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingSyntactic">
+                <button
+                  class="accordion-button collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseSyntactic"
+                  aria-expanded="false"
+                  aria-controls="collapseSyntactic"
+                >
+                  Análisis Sintáctico
+                </button>
+              </h2>
+              <div
+                id="collapseSyntactic"
+                class="accordion-collapse collapse"
+                aria-labelledby="headingSyntactic"
+                data-bs-parent="#analysisAccordion"
+              >
+                <div class="accordion-body">
+                  <textarea class="form-control" rows="10" readonly>
+{{ syntax }}</textarea
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingSemantic">
+                <button
+                  class="accordion-button collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseSemantic"
+                  aria-expanded="false"
+                  aria-controls="collapseSemantic"
+                >
+                  Análisis Semántico
+                </button>
+              </h2>
+              <div
+                id="collapseSemantic"
+                class="accordion-collapse collapse"
+                aria-labelledby="headingSemantic"
+                data-bs-parent="#analysisAccordion"
+              >
+                <div class="accordion-body">
+                  <textarea class="form-control" rows="10" readonly>
+{% for elemento in mensaje3 %}{{ elemento }}{% endfor %}</textarea
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingSymbols">
+                <button
+                  class="accordion-button collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseSymbols"
+                  aria-expanded="false"
+                  aria-controls="collapseSymbols"
+                >
+                  Tabla de Símbolos
+                </button>
+              </h2>
+              <div
+                id="collapseSymbols"
+                class="accordion-collapse collapse"
+                aria-labelledby="headingSymbols"
+                data-bs-parent="#analysisAccordion"
+              >
+                <div class="accordion-body">
+                  <ul class="list-group">
+                    {% for key, value in symbols.items() %}
+                    <li class="list-group-item">{{ key }} : {{ value }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
+  </body>
+</html>
